@@ -1,5 +1,3 @@
-"""HealthSearch: BM25, simulacao vetorial e RRF."""
-
 import re
 import unicodedata
 
@@ -64,7 +62,6 @@ def normalizar(texto):
 
 
 def preprocessar(texto):
-    # Hifens internos sao preservados: COD-ECG-12D vira cod-ecg-12d.
     tokens = re.findall(r"[a-z0-9]+(?:-[a-z0-9]+)*", normalizar(texto))
     return [token for token in tokens if token not in STOPWORDS]
 
@@ -73,8 +70,6 @@ def buscar_bm25(consulta, k1, b):
     corpus = [preprocessar(texto) for texto in TEXTOS]
     bm25 = BM25Okapi(corpus, k1=k1, b=b)
 
-    # rank_bm25 faz 0/0 para termos ausentes quando k1=0.
-    # O limite correto nesse extremo e IDF por termo presente.
     if k1 == 0:
         return np.array([
             sum(
@@ -98,7 +93,6 @@ def cosseno(documentos, consulta):
 
 
 def simular_vetores(textos):
-    # Alternativa didatica: presenca de conceitos definidos manualmente.
     grupos = [
         ("infarto", "ataque cardiaco", "sindrome coronariana", "isquemia miocardica"),
         ("acido acetilsalicilico", "aas", "aspirina", "antiagregantes"),
@@ -127,7 +121,6 @@ def simular_vetores(textos):
 
 
 def posicoes(scores):
-    # Empates seguem a ordem original (Doc 1 a Doc 6); posicoes comecam em 1.
     ordem = np.argsort(-np.asarray(scores), kind="stable")
     ranks = np.empty(len(scores), dtype=int)
     ranks[ordem] = np.arange(1, len(scores) + 1)
